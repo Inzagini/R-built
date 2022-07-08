@@ -1,0 +1,25 @@
+{
+    "projekt": {
+       
+        "seznam_projektu_excel": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\akce 2021\\Seznam_projektù_2019-21_SLOUÈENÝ_FIP_2021_07_21.xlsx",
+        "Titulni_strany_file": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\TITULNÍ STRANY\\R-built s.r.o",
+        "URL1" :"https://www.cuzk.cz/Dokument.aspx?AKCE=META:SESTAVA:MDR002_XSLT:WEBCUZK_ID:{ID_k_u}",
+        "URL2": "https://regiony.kurzy.cz/katastr/ku/{ID_k_u}/#zakladni"
+    },
+    "pruvodni_zprava": {
+        "nazev_projektu": "Nazev",
+        "kod_projektu": "IV-12-4022607",
+        "jmeno_projektanta": "Lucie Satranová",
+        "datum_vydani": "04/2022",
+        "Tel_cislo": "730874204",
+        "misto_stavby": "Obec Lom, okres Most, Ústecký kraj",
+        "ku": "ku a okres",
+        "termin_realizace": "1. ètvrtletí 2023",
+        "cena": "cena"
+    },
+    "zadani": {
+        "termin_realizace": "Požadovaný termín realizace:",
+        "cena_i": "Cena dle mìrných jednotek (tis.Kè) v letech:",
+        "cena_f": "Požadovaný termín zpracování PD vèetnì SP:"
+    }
+}

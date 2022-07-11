@@ -14,17 +14,17 @@ def btn_search():
 	info = projekt.hledani_info_mesta()	#return informace_o_projektu (dict)
 		
 	canvas.delete('info','mesto_info')	# delete previous text
-
-	if 'k.u.' not in info.keys():	#pokud nenajde k.u.
+	print(info)
+	
+	if 'k.u.' not in info.keys(): #pokud nenajde k.u.
 		messagebox.showerror(title='Error', message="k.u. nenalezeno")
 		canvas.create_text(
 		244.0, 149.0,
 		text = f"{info['nazev_projektu']}",
 		fill = "#000000",
 		font = ('calibri',10,'bold'),
-		tag = 'info')
-		return
-	
+		tag = 'info')		
+
 
 	canvas.create_text(
 		244.0, 149.0,

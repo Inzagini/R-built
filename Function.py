@@ -11,19 +11,85 @@ from datetime import datetime
 def test():
 
 
-	projekt_ID = '22/64'
+	projekt_ID = '22/41'
 
-	project = projekt(projekt_ID)
-	info = project.hledani_info_mesta()
+	# project = projekt(projekt_ID)
+	# info = project.hledani_info_mesta()
+	# with open("setting.json","r") as f:
+	# 		file = f.read()
+	# 		setting = json.loads(file)
 
-	# doc = doc_manipulation(info)
-	# a = doc.stitky()
-	print(info)
+	# print(setting["jmeno_projektanta"])
+	# doc = doc_manipulation(projekt_ID)
+	# a = doc.info_zadani()
+	# print(a)
 
 	
+	projekt = {
+        "seznam_projektu_excel": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\akce 2021\\Seznam_projektù_2019-21_SLOUÈENÝ_FIP_2021_07_21.xlsx",
+        "Titulni_strany_file": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\TITULNÍ STRANY\\R-built s.r.o",
+        "URL1" :"https://www.cuzk.cz/Dokument.aspx?AKCE=META:SESTAVA:MDR002_XSLT:WEBCUZK_ID:{ID_k_u}",
+        "URL2": "https://regiony.kurzy.cz/katastr/ku/{ID_k_u}/#zakladni"
+    }
 
+	pruvodni_zprava = {
+        "nazev_projektu": "Nazev",
+        "kod_projektu": "IV-12-4022607",
+        "jmeno_projektanta": "Lucie Satranová",
+        "datum_vydani": "04/2022",
+        "Tel_cislo": "730874204",
+        "misto_stavby": "Obec Lom, okres Most, Ústecký kraj",
+        "ku": "ku a okres",
+        "termin_realizace": "1. ètvrtletí 2023",
+        "cena": "cena" }
+
+	zadani = {
+        "termin_realizace": "Požadovaný termín realizace:",
+        "cena_i": "Cena dle mìrných jednotek (tis.Kè) v letech:",
+        "cena_f": "Požadovaný termín zpracování PD vèetnì SP:"
+    }
+	rok_nazvy = {
+        "19" :"akce 2019",
+        "20" :"akce 2020",
+        "21" :"akce 2021",
+        "22" :"akce 2022",
+        "23" :"akce 2023"
+    }
+	stitky = {
+        "jmeno_projektanta" : "B2",
+        "nazev_projektu" : "A6",
+        "interni_kod" : "E5",
+        "datum_vydani" : "E6",
+        "kod_projektu" : "D8"
+    }
+	Tel_cislo = {
+        "Paul Peter Fisher" : "730 874 209",
+        "Kateřina Stará" : "730 874 203",
+        "Lucie Satranová" : "730 874 204",
+        "Martin Čejka" : "730 874 202",
+        "Pavel Filla" : "776 147 424",
+        "Tomáš Ellmrich" : "730 874 207",
+        "Jiří Šigut" : "730 874 210",
+        "Matyáš Starý" : "730 874 208",
+        "Karolína Dittrichová" : "730 874 211"
+    }
+	jmeno_projektanta = {
+        "Fisher" : "Paul Peter Fisher",
+        "Stará" : "Kateřina Stará",
+        "Satranová" : "Lucie Satranová",
+        "Čejka" : "Martin Čejka",
+        "Filla" : "Pavel Filla",
+        "Ellmrich" : "Tomáš Ellmrich",
+        "Starý M." : "Matyáš Starý"
+    }
+
+	setting = {projekt, pruvodni_zprava, zadani,rok_nazvy,stitky, Tel_cislo,jmeno_projektanta}
 	
-	
+	json_con = json.dumps(setting,indent=4, sort_keys=True)
+
+	with open('setting.json', 'w') as f:
+		file = f.write(json_con)
+
 
 	return
 
@@ -32,19 +98,14 @@ class projekt:
 		self.cislo_projektu = cislo_projektu
 		with open("setting.json","r") as f:
 			file = f.read()
-			setting = json.loads(file)
-			self.setting = setting
+			self.setting = json.loads(file)
 
 	###################### Hledani nazvu search_project() ############################	
 	def search_project(self):
 
-		informace_o_projektu = {
-
-		}
-
+		informace_o_projektu = {}
 
 		#input project number and split
-		
 		code_project = self.cislo_projektu # input() cislo projektu 
 		name_project_list = [n for n in map(int, code_project.split('/'))]
 		
@@ -53,11 +114,10 @@ class projekt:
 
 		user_name = os.getlogin() #get user name
 		
-		project_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{rok_nazvy[f"{projekt_rok}"]}'
+		#File directories
+		project_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{self.setting["rok_nazvy"][f"{projekt_rok}"]}'
 		# seznam_projektu_excel = rf"C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\akce 2021\Seznam_projektů_2019-21_SLOUČENÝ_FIP_2021_07_21.xlsx"
 		# Titulni_strany_file = rf"C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\TITULNÍ STRANY\R-built s.r.o"
-
-		
 		seznam_projektu_excel = self.setting["projekt"]["seznam_projektu_excel"].replace("{user_name}", user_name)
 		Titulni_strany_file = self.setting["projekt"]["Titulni_strany_file"].replace("{user_name}", user_name)
 		
@@ -75,9 +135,9 @@ class projekt:
 					informace_o_projektu["kod_projektu"] = list_jmeno_projektu[1]
 
 					#rok projektu
-					informace_o_projektu["rok_projektu"] = rok_nazvy[f"{projekt_rok}"].split()[1]
+					informace_o_projektu["rok_projektu"] = self.setting["rok_nazvy"][f"{projekt_rok}"].split()[1]
 
-					project_file_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{rok_nazvy[f"{projekt_rok}"]}\{filename}'
+					project_file_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{self.setting["rok_nazvy"][f"{projekt_rok}"]}\{filename}'
 
 					informace_o_projektu["project_file_directory"] = project_file_directory
 
@@ -157,6 +217,8 @@ class projekt:
 		else:
 			nazev_mesta = informace_jmena[1]
 
+		nazev_mesta = nazev_mesta.strip()
+
 		if "Ústí n.L" in nazev_mesta:
 			nazev_mesta = nazev_mesta.replace("Ústí n.L.","Ústí nad Labem")
 
@@ -167,8 +229,9 @@ class projekt:
 			ID_k_u = file[f'{nazev_mesta}']
 		except:
 			print ("Město Nenalezen")
-			return None
+			return informace_o_projektu
 
+		# webscrapping
 		URL = self.setting["projekt"]["URL1"].replace("{ID_k_u}", str(ID_k_u))	#web link bez ID k.u. 
 
 		page = requests.get(URL)										#web scrape informaci
@@ -265,8 +328,8 @@ class doc_manipulation:
 		self.user_name = os.getlogin()
 		with open("setting.json","r") as f:
 			file = f.read()
-			setting = json.loads(file)
-			self.setting = setting
+			self.setting = json.loads(file)
+	
 
 	def doc_replace_fuc(self,dic_new,dic_old,key,place):
 		if str(dic_old.get(f"{key}")) in place.text:
@@ -295,17 +358,6 @@ class doc_manipulation:
 
 		stary_veci = self.setting["pruvodni_zprava"]
 		
-		# novy_veci = {
-		# 'nazev_projektu' : 'Test nazev',
-		# 'kod_projektu' : 'Test kod',
-		# 'jmeno_projektanta' : 'Test projektant',
-		# 'datum_vydani' : 'test_datum',
-		# 'Tel_cislo' : 'test cislo',
-		# 'misto_stavby' : 'Obec Test, okres test, test kraj',
-		# 'ku' : 'k.ú. test',
-		# 'termin_realizace' : 'termin_test',
-		# 'cena' : 'cena_test'
-		# }
 		
 		for section in document.sections:			#loop sekce -> zapati
 			footer = section.footer
@@ -321,14 +373,15 @@ class doc_manipulation:
 					
 		document.save(rf'C:\Users\{user_name}\Desktop\A_Průvodní zpráva_{self.project_dict["k.u."]}.docx')
 				
-		return	'Hotovo'
+		return	1
 
 	def stitky(self):
 		user_name = self.user_name
 		project_file_directory = self.project_dict["project_file_directory"]
 
 		pruvodni_zprava_directory = rf'{project_file_directory}\dokumentace na SÚ\textová část'
-		stitky_vzor = rf'C:\Users\{user_name}\Desktop\R-built Tools\Dokumenty\ŠTÍTKY.xlsx'
+		cwd = os.getcwd()
+		stitky_vzor = rf'{cwd}\Dokumenty\ŠTÍTKY.xlsx'
 		
 		
 		files = glob.glob(rf'{pruvodni_zprava_directory}\*.docx')
@@ -353,18 +406,21 @@ class doc_manipulation:
 		wb = openpyxl.load_workbook(stitky_vzor) #load seznam projectu file
 		ws = wb.sheetnames
 
-		for index,sheet in enumerate(ws): #find the rigth sheet and set it as active
+		#find the rigth sheet and set it as active
+		for index,sheet in enumerate(ws): 
 			if f"R-built s.r.o." == sheet:
 				company = 'R-built'
 				wb.active = index
 				ws= wb.active
 		
-		ws["B2"] = self.project_dict["jmeno_projektanta"]
-		ws["A6"] = self.project_dict["nazev_projektu"]
-		ws["E5"] = f'{self.project_dict["cislo_projektu"]}/{self.project_dict["rok_projektu"]}'
-		ws["E6"] = self.project_dict["datum_vydani"]
-		ws["D8"] = self.project_dict["kod_projektu"]
+		# cells v exccel
+		ws[str(self.setting["stitky"]["jmeno_projektanta"])] = self.project_dict["jmeno_projektanta"]
+		ws[str(self.setting["stitky"]["nazev_projektu"])] = self.project_dict["nazev_projektu"]
+		ws[str(self.setting["stitky"]["interni_kod"])] = f'{self.project_dict["cislo_projektu"]}/{self.project_dict["rok_projektu"]}'
+		ws[str(self.setting["stitky"]["datum_vydani"])] = self.project_dict["datum_vydani"]
+		ws[str(self.setting["stitky"]["kod_projektu"])] = self.project_dict["kod_projektu"]
 
+		#Output directory
 		out_excel_file = rf'C:\Users\{user_name}\Desktop\ŠTÍTKY.xlsx'	
 		wb.save(filename=out_excel_file)
 		wb.close()
@@ -390,8 +446,7 @@ class zadani:
 		self.cislo_projektu = cislo_projektu
 		with open("setting.json","r") as f:
 			file = f.read()
-			setting = json.loads(file)
-			self.setting = setting
+			self.setting = json.loads(file)
 
 	######################## Hledani zadani (file path)######################################
 	def hledani_zadani(self):	
@@ -404,13 +459,13 @@ class zadani:
 
 		user_name = os.getlogin() #get user name
 
-		project_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{rok_nazvy[f"{projekt_rok}"]}'
+		project_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{self.setting["rok_nazvy"][f"{projekt_rok}"]}'
 
 		for index, filename in enumerate(os.listdir(project_directory)):
 
 			try:
 				if int(filename[0:3]) == projekt_cislo:	
-						project_file_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{rok_nazvy[f"{projekt_rok}"]}\{filename}'
+						project_file_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{self.setting["rok_nazvy"][f"{projekt_rok}"]}\{filename}'
 						# print('slozka: ' + project_file_directory)
 			except:
 				pass
@@ -700,13 +755,7 @@ plna_moc = {
 # 		os.remove(f'doklad_t{n}.pdf')
 # 		os.remove(f'obsah_t{n}.pdf')
 
-rok_nazvy = {
-	"19": "akce 2019",
-	"20": "akce 2020",
-	"21": "akce 2021",
-	"22": "akce 2022",
-	"23": "akce 2023",
-}
+
 
 if __name__ == '__main__':
 	test()

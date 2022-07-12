@@ -1,8 +1,8 @@
 {
     "projekt": {
-        "seznam_projektu_excel": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\akce 2021\\Seznam_projektù_2019-21_SLOUÈENÝ_FIP_2021_07_21.xlsx",
+        "seznam_projektu_excel": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\akce 2021\\Seznam_projektů_2019-21_SLOUČENÝ_FIP_2021_07_21.xlsx",
         "Titulni_strany_file": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\TITULNÍ STRANY\\R-built s.r.o",
-        "URL1" :"https://www.cuzk.cz/Dokument.aspx?AKCE=META:SESTAVA:MDR002_XSLT:WEBCUZK_ID:{ID_k_u}",
+        "URL1": "https://www.cuzk.cz/Dokument.aspx?AKCE=META:SESTAVA:MDR002_XSLT:WEBCUZK_ID:{ID_k_u}",
         "URL2": "https://regiony.kurzy.cz/katastr/ku/{ID_k_u}/#zakladni"
     },
     "pruvodni_zprava": {
@@ -10,50 +10,49 @@
         "kod_projektu": "IV-12-4022607",
         "jmeno_projektanta": "Lucie Satranová",
         "datum_vydani": "04/2022",
-        "Tel_cislo": "730874204",
+        "Tel_cislo": "730 874 204",
         "misto_stavby": "Obec Lom, okres Most, Ústecký kraj",
         "ku": "ku a okres",
-        "termin_realizace": "1. ètvrtletí 2023",
+        "termin_realizace": "1. čtvrtletí 2023",
         "cena": "cena"
     },
     "zadani": {
         "termin_realizace": "Požadovaný termín realizace:",
-        "cena_i": "Cena dle mìrných jednotek (tis.Kè) v letech:",
-        "cena_f": "Požadovaný termín zpracování PD vèetnì SP:"
+        "cena_i": "Cena dle měrných jednotek (tis.Kč) v letech:",
+        "cena_f": "Požadovaný termín zpracování PD včetně SP:"
     },
-    "rok_nazvy" : {
-        "19" :"akce 2019",
-        "20" :"akce 2020",
-        "21" :"akce 2021",
-        "22" :"akce 2022",
-        "23" :"akce 2023"
+    "rok_nazvy": {
+        "19": "akce 2019",
+        "20": "akce 2020",
+        "21": "akce 2021",
+        "22": "akce 2022",
+        "23": "akce 2023"
     },
-    "stitky" : {
-        "jmeno_projektanta" : "B2",
-        "nazev_projektu" : "A6",
-        "interni_kod" : "E5",
-        "datum_vydani" : "E6",
-        "kod_projektu" : "D8"
+    "stitky": {
+        "jmeno_projektanta": "B2",
+        "nazev_projektu": "A6",
+        "interni_kod": "E5",
+        "datum_vydani": "E6",
+        "kod_projektu": "D8"
     },
-    "Tel_cislo" : {
-        "Paul Peter Fisher" : "730 874 209",
-        "Kateřina Stará" : "730 874 203",
-        "Lucie Satranová" : "730 874 204",
-        "Martin Čejka" : "730 874 202",
-        "Pavel Filla" : "776 147 424",
-        "Tomáš Ellmrich" : "730 874 207",
-        "Jiří Šigut" : "730 874 210",
-        "Matyáš Starý" : "730 874 208",
-        "Karolína Dittrichová" : "730 874 211"
+    "Tel_cislo": {
+        "Paul Peter Fisher": "730 874 209",
+        "Kateřina Stará": "730 874 203",
+        "Lucie Satranová": "730 874 204",
+        "Martin Čejka": "730 874 202",
+        "Pavel Filla": "776 147 424",
+        "Tomáš Ellmrich": "730 874 207",
+        "Jiří Šigut": "730 874 210",
+        "Matyáš Starý": "730 874 208",
+        "Karolína Dittrichová": "730 874 211"
     },
-    "jmeno_projektanta" : {
-        "Fisher" : "Paul Peter Fisher",
-        "Stará" : "Kateřina Stará",
-        "Satranová" : "Lucie Satranová",
-        "Čejka" : "Martin Čejka",
-        "Filla" : "Pavel Filla",
-        "Ellmrich" : "Tomáš Ellmrich",
-        "Starý M." : "Matyáš Starý"
+    "jmeno_projektanta": {
+        "Fisher": "Paul Peter Fisher",
+        "Stará": "Kateřina Stará",
+        "Satranová": "Lucie Satranová",
+        "Čejka": "Martin Čejka",
+        "Filla": "Pavel Filla",
+        "Ellmrich": "Tomáš Ellmrich",
+        "Starý M.": "Matyáš Starý"
     }
-
 }

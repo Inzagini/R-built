@@ -12,91 +12,25 @@ def test():
 
 
 	projekt_ID = '22/41'
-
 	# project = projekt(projekt_ID)
 	# info = project.hledani_info_mesta()
-	# with open("setting.json","r") as f:
-	# 		file = f.read()
-	# 		setting = json.loads(file)
-
-	# print(setting["jmeno_projektanta"])
-	# doc = doc_manipulation(projekt_ID)
-	# a = doc.info_zadani()
-	# print(a)
+	
+	# ZAD = zadani(projekt_ID)
+	# zad_info = ZAD.info_zadani()
+	# info.update(zad_info)
+	
+	# doc = doc_manipulation(info)
+	# a = doc.pruvodni_zprava()
+	
 
 	
-	projekt = {
-        "seznam_projektu_excel": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\akce 2021\\Seznam_projektù_2019-21_SLOUÈENÝ_FIP_2021_07_21.xlsx",
-        "Titulni_strany_file": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\TITULNÍ STRANY\\R-built s.r.o",
-        "URL1" :"https://www.cuzk.cz/Dokument.aspx?AKCE=META:SESTAVA:MDR002_XSLT:WEBCUZK_ID:{ID_k_u}",
-        "URL2": "https://regiony.kurzy.cz/katastr/ku/{ID_k_u}/#zakladni"
-    }
-
-	pruvodni_zprava = {
-        "nazev_projektu": "Nazev",
-        "kod_projektu": "IV-12-4022607",
-        "jmeno_projektanta": "Lucie Satranová",
-        "datum_vydani": "04/2022",
-        "Tel_cislo": "730874204",
-        "misto_stavby": "Obec Lom, okres Most, Ústecký kraj",
-        "ku": "ku a okres",
-        "termin_realizace": "1. ètvrtletí 2023",
-        "cena": "cena" }
-
-	zadani = {
-        "termin_realizace": "Požadovaný termín realizace:",
-        "cena_i": "Cena dle mìrných jednotek (tis.Kè) v letech:",
-        "cena_f": "Požadovaný termín zpracování PD vèetnì SP:"
-    }
-	rok_nazvy = {
-        "19" :"akce 2019",
-        "20" :"akce 2020",
-        "21" :"akce 2021",
-        "22" :"akce 2022",
-        "23" :"akce 2023"
-    }
-	stitky = {
-        "jmeno_projektanta" : "B2",
-        "nazev_projektu" : "A6",
-        "interni_kod" : "E5",
-        "datum_vydani" : "E6",
-        "kod_projektu" : "D8"
-    }
-	Tel_cislo = {
-        "Paul Peter Fisher" : "730 874 209",
-        "Kateřina Stará" : "730 874 203",
-        "Lucie Satranová" : "730 874 204",
-        "Martin Čejka" : "730 874 202",
-        "Pavel Filla" : "776 147 424",
-        "Tomáš Ellmrich" : "730 874 207",
-        "Jiří Šigut" : "730 874 210",
-        "Matyáš Starý" : "730 874 208",
-        "Karolína Dittrichová" : "730 874 211"
-    }
-	jmeno_projektanta = {
-        "Fisher" : "Paul Peter Fisher",
-        "Stará" : "Kateřina Stará",
-        "Satranová" : "Lucie Satranová",
-        "Čejka" : "Martin Čejka",
-        "Filla" : "Pavel Filla",
-        "Ellmrich" : "Tomáš Ellmrich",
-        "Starý M." : "Matyáš Starý"
-    }
-
-	setting = {projekt, pruvodni_zprava, zadani,rok_nazvy,stitky, Tel_cislo,jmeno_projektanta}
-	
-	json_con = json.dumps(setting,indent=4, sort_keys=True)
-
-	with open('setting.json', 'w') as f:
-		file = f.write(json_con)
-
 
 	return
 
 class projekt:
 	def __init__(self, cislo_projektu):
 		self.cislo_projektu = cislo_projektu
-		with open("setting.json","r") as f:
+		with open("setting.json","r",encoding = 'utf-8') as f:
 			file = f.read()
 			self.setting = json.loads(file)
 
@@ -177,27 +111,29 @@ class projekt:
 		wb.close()
 		##################################################
 
+		informace_o_projektu["jmeno_projektanta"] = self.setting["jmeno_projektanta"][informace_o_projektu.get("jmeno_projektanta")]
+		informace_o_projektu["Tel_cislo"] = self.setting["Tel_cislo"][informace_o_projektu["jmeno_projektanta"]]
 
 
 
 		############### Projektant informace ###############
-		for filename in os.listdir(Titulni_strany_file):
-			if informace_o_projektu.get("jmeno_projektanta") in filename:
-				wb = openpyxl.load_workbook(Titulni_strany_file+rf"\{filename}\Titulní strany.xlsx", read_only=True)
-				ws = wb.sheetnames
+		# for filename in os.listdir(Titulni_strany_file):
+		# 	if informace_o_projektu.get("jmeno_projektanta") in filename:
+		# 		wb = openpyxl.load_workbook(Titulni_strany_file+rf"\{filename}\Titulní strany.xlsx", read_only=True)
+		# 		ws = wb.sheetnames
 
-				for index,sheet in enumerate(ws): #find the rigth sheet and set it as active
-					if "ZADÁNÍ" == sheet:
-						wb.active = index
-						ws= wb.active
+		# 		for index,sheet in enumerate(ws): #find the rigth sheet and set it as active
+		# 			if "ZADÁNÍ" == sheet:
+		# 				wb.active = index
+		# 				ws= wb.active
 
-				for row in ws.rows:	
-					for cell in row:
-						if cell.value == "Projektant":
-							informace_o_projektu["jmeno_projektanta"] = ws.cell(row=cell.row, column=3).value
-						elif cell.value == "Tel. číslo":
-							tel = str(ws.cell(row=cell.row, column=3).value)
-							informace_o_projektu["Tel_cislo"] = " ".join([tel[0:3],tel[3:6],tel[6:9]])
+		# 		for row in ws.rows:	
+		# 			for cell in row:
+		# 				if cell.value == "Projektant":
+		# 					informace_o_projektu["jmeno_projektanta"] = ws.cell(row=cell.row, column=3).value
+		# 				elif cell.value == "Tel. číslo":
+		# 					tel = str(ws.cell(row=cell.row, column=3).value)
+		# 					informace_o_projektu["Tel_cislo"] = " ".join([tel[0:3],tel[3:6],tel[6:9]])
 		self.informace_o_projektu = informace_o_projektu
 		return self.informace_o_projektu
 	########################################################
@@ -326,7 +262,7 @@ class doc_manipulation:
 	def __init__(self,info_dict):
 		self.project_dict = info_dict
 		self.user_name = os.getlogin()
-		with open("setting.json","r") as f:
+		with open("setting.json","r",encoding = 'utf-8') as f:
 			file = f.read()
 			self.setting = json.loads(file)
 	
@@ -354,8 +290,8 @@ class doc_manipulation:
 		today = datetime.now()
 		today = today.strftime("%m %Y")
 		today = today.replace(" ","/")
-		self.project_dict["datum_vydani"] = today
 
+		self.project_dict["datum_vydani"] = today
 		stary_veci = self.setting["pruvodni_zprava"]
 		
 		
@@ -444,7 +380,7 @@ class doc_manipulation:
 class zadani:
 	def __init__(self, cislo_projektu):
 		self.cislo_projektu = cislo_projektu
-		with open("setting.json","r") as f:
+		with open("setting.json","r",encoding = 'utf-8') as f:
 			file = f.read()
 			self.setting = json.loads(file)
 
@@ -554,9 +490,9 @@ class zadani:
 		dict_ZAD = {}
 
 		for index,paragraph in enumerate(document.paragraphs):			#loop paragrafy
-			# print (paragraph.text)
+			
 			for key in dict_extract.keys():				#loop key z dict
-				
+				# print(key, paragraph.text)
 				if str(dict_extract.get(f"{key}")) in paragraph.text:			# key value v text paragrafu
 					# print(index, key,str(dict_extract.get(f"{key}")) in paragraph.text)
 					inline = paragraph.runs									#vestavena funkce loop z modulu doxc pro udryeni stylu
@@ -577,13 +513,16 @@ class zadani:
 
 					if key == 'cena_f':
 						konec = index
-					
+		
+
+
+		
 		for n in range(pocatek, konec):
 			para = document.paragraphs[n]
 
 			if  any(x.isdigit() for x in para.text) :
 				dict_ZAD.setdefault("cena", para.text + ' tis.Kč')
-				# print(para.text)
+			# print(para.text)
 		
 
 		self.dict_ZAD = dict_ZAD

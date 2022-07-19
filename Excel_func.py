@@ -94,10 +94,10 @@ class excel_manipulation:
 
 		
 		
-		o = client.Dispatch("Excel.Application")
-		o.Visible = False
+		excel = client.Dispatch("Excel.Application")
+		excel.Visible = False
 
-		sheets = o.Workbooks.Open(self.vypln_excel_file)
+		sheets = excel.Workbooks.Open(self.vypln_excel_file)
 		for index,sheet in enumerate(ws): 
 			if self.setting["Titulni_strany"]["stitky"] == sheet:
 				company = 'R-built'

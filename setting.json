@@ -1,7 +1,8 @@
 {
     "projekt": {
-        "seznam_projektu_excel": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\akce 2021\\Seznam_projektů_2019-21_SLOUČENÝ_FIP_2021_07_21.xlsx",
-        "Titulni_strany_file": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty\\TITULNÍ STRANY\\R-built s.r.o",
+        "project_directory": "C:\\Users\\{user_name}\\OneDrive - R-built s.r.o\\Dokumenty",
+        "seznam_projektu_excel": "\\akce 2021\\Seznam_projektů_2019-21_SLOUČENÝ_FIP_2021_07_21.xlsx",
+        "Titulni_strany_file": "\\TITULNÍ STRANY\\R-built s.r.o",
         "URL1": "https://www.cuzk.cz/Dokument.aspx?AKCE=META:SESTAVA:MDR002_XSLT:WEBCUZK_ID:{ID_k_u}",
         "URL2": "https://regiony.kurzy.cz/katastr/ku/{ID_k_u}/#zakladni"
     },
@@ -70,6 +71,7 @@
     },
     "jmeno_projektanta": {
         "Fisher": "Paul Peter Fisher",
+        "Fischer" : "Paul Peter Fisher",
         "Stará": "Kateřina Stará",
         "Satranová": "Lucie Satranová",
         "Čejka": "Martin Čejka",

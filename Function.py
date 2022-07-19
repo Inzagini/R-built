@@ -12,13 +12,13 @@ def test():
 
 
 	projekt_ID = '22/41'
-	# project = projekt(projekt_ID)
-	# info = project.hledani_info_mesta()
+	project = projekt(projekt_ID)
+	info = project.hledani_info_mesta()
 	
-	# ZAD = zadani(projekt_ID)
-	# zad_info = ZAD.info_zadani()
-	# info.update(zad_info)
-	
+	ZAD = zadani(info)
+	zad_info = ZAD.info_zadani()
+	info.update(zad_info)
+	print(info)
 	# doc = doc_manipulation(info)
 	# a = doc.pruvodni_zprava()
 
@@ -49,11 +49,14 @@ class projekt:
 		user_name = os.getlogin() #get user name
 		
 		#File directories
-		project_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{self.setting["rok_nazvy"][f"{projekt_rok}"]}'
+		project_directory = self.setting["projekt"]["project_directory"].replace("{user_name}", user_name)
+		seznam_projektu_excel = project_directory + self.setting["projekt"]["seznam_projektu_excel"]
+		Titulni_strany_file = project_directory + self.setting["projekt"]["Titulni_strany_file"]
+
+		project_directory = project_directory + rf'\{self.setting["rok_nazvy"][f"{projekt_rok}"]}'
 		# seznam_projektu_excel = rf"C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\akce 2021\Seznam_projektů_2019-21_SLOUČENÝ_FIP_2021_07_21.xlsx"
 		# Titulni_strany_file = rf"C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\TITULNÍ STRANY\R-built s.r.o"
-		seznam_projektu_excel = self.setting["projekt"]["seznam_projektu_excel"].replace("{user_name}", user_name)
-		Titulni_strany_file = self.setting["projekt"]["Titulni_strany_file"].replace("{user_name}", user_name)
+		
 		
 
 		#get name project in list
@@ -71,7 +74,7 @@ class projekt:
 					#rok projektu
 					informace_o_projektu["rok_projektu"] = self.setting["rok_nazvy"][f"{projekt_rok}"].split()[1]
 
-					project_file_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{self.setting["rok_nazvy"][f"{projekt_rok}"]}\{filename}'
+					project_file_directory = project_directory + rf'\{filename}'
 
 					informace_o_projektu["project_file_directory"] = project_file_directory
 
@@ -284,8 +287,12 @@ class doc_manipulation:
 		user_name = self.user_name
 	
 		cwd = os.getcwd()
-		with open(fr'{cwd}\Dokumenty\A_Průvodní zpráva.docx','rb') as f:
-			document = Document(f)
+		try:
+			with open(fr'{cwd}\Dokumenty\A_Průvodní zpráva.docx','rb') as f:
+				document = Document(f)
+			print("Document found")
+		except:
+			print("Document not found")
 		
 		today = datetime.now()
 		today = today.strftime("%m %Y")
@@ -317,8 +324,9 @@ class doc_manipulation:
 
 
 class zadani:
-	def __init__(self, cislo_projektu):
-		self.cislo_projektu = cislo_projektu
+	def __init__(self, project_info):
+		# self.cislo_projektu = cislo_projektu
+		self.project_file_directory = project_info["project_file_directory"]
 		with open("setting.json","r",encoding = 'utf-8') as f:
 			file = f.read()
 			self.setting = json.loads(file)
@@ -326,24 +334,7 @@ class zadani:
 	######################## Hledani zadani (file path)######################################
 	def hledani_zadani(self):	
 
-		code_project = self.cislo_projektu # input() cislo projektu 
-		name_project_list = [n for n in map(int, code_project.split('/'))]
-		
-		projekt_rok = name_project_list[0]
-		projekt_cislo = name_project_list[1]
-
-		user_name = os.getlogin() #get user name
-
-		project_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{self.setting["rok_nazvy"][f"{projekt_rok}"]}'
-
-		for filename in os.listdir(project_directory):
-
-			try:
-				if int(filename[0:3]) == projekt_cislo:	
-						project_file_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{self.setting["rok_nazvy"][f"{projekt_rok}"]}\{filename}'
-						# print('slozka: ' + project_file_directory)
-			except:
-				pass
+		project_file_directory = self.project_file_directory
 
 		try:
 			for file in os.listdir(project_file_directory):
@@ -415,7 +406,7 @@ class zadani:
 	######################### zadani info #########################################
 	def info_zadani(self):
 		zadani_file = self.hledani_zadani()
-		user_name = os.getlogin()		
+				
 
 		if zadani_file is None:
 			print ('File None')

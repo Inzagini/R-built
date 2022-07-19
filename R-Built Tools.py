@@ -96,7 +96,7 @@ def btn_thunder():
 		if pruvodni.get() == 1:
 			print ("Pruvodni: On")
 			info_z_search = info
-			ZAD = fn.zadani(entry0.get())
+			ZAD = fn.zadani(info_z_search)
 			info_ZAD = ZAD.info_zadani()
 			if info_ZAD is None:
 				print ('Chyba zadani')

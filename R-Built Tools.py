@@ -302,11 +302,13 @@ c_doklad1_obsah = Checkbutton(
 	variable = doklad1_obsah,
 	onvalue = 1,
 	offvalue = 0,
+	state = "disabled",
 	)
 c_doklad1_obsah.place(
 	x = 105, y = 412,
     width = 13,
     height = 13,
+
 	)
 #######################################################
 window.resizable(False, False)

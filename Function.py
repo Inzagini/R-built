@@ -11,14 +11,14 @@ from datetime import datetime
 def test():
 
 
-	projekt_ID = '22/41'
+	projekt_ID = '21/139'
 	project = projekt(projekt_ID)
 	info = project.hledani_info_mesta()
 	
 	ZAD = zadani(info)
 	zad_info = ZAD.info_zadani()
-	info.update(zad_info)
-	print(info)
+	# info.update(zad_info)
+	print(zad_info)
 	# doc = doc_manipulation(info)
 	# a = doc.pruvodni_zprava()
 
@@ -287,12 +287,7 @@ class doc_manipulation:
 		user_name = self.user_name
 	
 		cwd = os.getcwd()
-		try:
-			with open(fr'{cwd}\Dokumenty\A_Průvodní zpráva.docx','rb') as f:
-				document = Document(f)
-			print("Document found")
-		except:
-			print("Document not found")
+		
 		
 		today = datetime.now()
 		today = today.strftime("%m %Y")
@@ -301,20 +296,38 @@ class doc_manipulation:
 		self.project_dict["datum_vydani"] = today
 		stary_veci = self.setting["pruvodni_zprava"]
 		
-		
-		for section in document.sections:			#loop sekce -> zapati
-			footer = section.footer
-			for key in stary_veci.keys():
-				for foot in footer.paragraphs:	
-					self.doc_replace_fuc(dic_new=self.project_dict,dic_old=stary_veci,key=key,place=foot)
-					
+		def sub_pruvodni_zprava(word_file):
 
-		for paragraph in document.paragraphs:			#loop paragrafy
-			# print (paragraph.text)
-			for key in stary_veci.keys():				#loop key z dict
-				self.doc_replace_fuc(dic_new=self.project_dict,dic_old=stary_veci,key=key,place=paragraph)		
+			try:
+				with open(fr'{cwd}\Dokumenty\{word_file}.docx','rb') as f:
+					document = Document(f)
+				print(f"Document {word_file} found")
+			except:
+				print(f"Document {word_file} not found")
+			
+			for section in document.sections:			#loop sekce -> zapati
+				footer = section.footer
+				for key in stary_veci.keys():
+					for foot in footer.paragraphs:	
+						self.doc_replace_fuc(dic_new=self.project_dict,dic_old=stary_veci,key=key,place=foot)
+						
+
+			for paragraph in document.paragraphs:			#loop paragrafy
+				# print (paragraph.text)
+				for key in stary_veci.keys():				#loop key z dict
+					self.doc_replace_fuc(dic_new=self.project_dict,dic_old=stary_veci,key=key,place=paragraph)
+
+			document.save(rf'C:\Users\{user_name}\Desktop\{word_file}_{self.project_dict["k.u."]}.docx')
+
+		pruvodni_zprava_files = [
+			"A_Průvodní zpráva",
+			"B_Souhrnná_technická_zpráva",
+			"C_Situační_výkresy",
+			"D_Dokumentace_objektů_a_technických_a_technologických_zařízení",
+			"E_Organizace_výstavby"]		
 					
-		document.save(rf'C:\Users\{user_name}\Desktop\A_Průvodní zpráva_{self.project_dict["k.u."]}.docx')
+		for file in pruvodni_zprava_files:
+			sub_pruvodni_zprava(file)
 				
 		return	1
 
@@ -344,11 +357,11 @@ class zadani:
 					self.zadani = zadani
 					# print('Zadani:' + zadani)
 					return self.zadani
-				elif 'podklady' in file:
+				if 'podklady' == file:
 					project_file_directory = project_file_directory +r'\podklady'
 					podklady = True
 					# print('podklady True')
-
+			
 			if os.listdir(project_file_directory) != None and 'podklady' not in locals():
 				project_file_directory = project_file_directory +rf'\{file}'
 				for file in os.listdir(project_file_directory):
@@ -357,10 +370,11 @@ class zadani:
 						self.zadani = zadani
 						# print('Zadani:' + zadani)
 						return self.zadani
-					elif 'podklady' in file:
+					if 'podklady' in file:
 						project_file_directory = project_file_directory +r'\podklady'
 						podklady = True
 						# print('podklady True')
+
 		except:
 			print ('Složka nenalezena')
 			return None
@@ -372,7 +386,7 @@ class zadani:
 					self.zadani = zadani
 					return self.zadani
 					# print('Zadani:' + zadani)
-				elif 'ZN' in file:
+				elif 'ZN' == file:
 					project_file_directory = project_file_directory +r'\ZN'
 					ZN = True
 					# print('ZN True')

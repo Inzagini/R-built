@@ -12,10 +12,10 @@ def test():
 	
 	
 	PDF = PDF_manipulation(info)
-	# CEZ = PDF.CEZ()
-	# print(CEZ)
+	CEZ = PDF.CEZ()
+	print(CEZ)
 	
-	file = PDF.find_file('ČEZ','Sdělení')
+	# file = PDF.find_file('ČEZ','Sdělení')
 
 	# print(file)
 
@@ -53,7 +53,7 @@ class PDF_manipulation:
 			for filename in os.listdir(site_directory):
 				
 				if pozadavek in filename:
-					print (filename)
+					# print (filename)
 					dict_file.setdefault(f"{sit}", site_directory+rf'\{filename}')
 		# print(list_file)
 		return dict_file
@@ -107,7 +107,7 @@ class PDF_manipulation:
 		dict_file= self.find_file('CETIN','Vy')
 
 		#loop pdf souboru z listu
-		for pdf_file in dict_file.values():
+		for key,pdf_file in dict_file.items():
 			pdf_text = self.PDF_reader(pdf_file)
 
 			 #hleda jestli dojde ke stretu
@@ -174,36 +174,58 @@ class PDF_manipulation:
 		info_CEZ = {}
 
 		#podpurna funkce pro ziskani informaci
-		def sub_CEZ(pdf_file):
+		def sub_CEZ(key,pdf_file):
+
+			sub_dict = {}
+			# print(key)
 			for index, text in enumerate(pdf_text):
 				# print(index, text)
-				if CEZ["cislo_jednaci"] in text:
-					info_CEZ["cislo_jednaci"] = pdf_text[index+1].split(" ")[0]
+
 
 				if CEZ["stret"] in text:
-					info_CEZ["stret"] = 'nachází'
-				else:
-					info_CEZ["stret"] = 'nenachází'
+					# print("Nachazi")
+					sub_dict["stret"] = "střet"
+				
+				if CEZ["cislo_jednaci"] in text:
+					cislo_jednaci_index = index
+
+		
+				if "cislo_jednaci_index" in locals() and "střet" in sub_dict.values():
+					sub_dict["cislo_jednaci"] = pdf_text[cislo_jednaci_index+1].split(" ")[0]
+					# print("Nachazi")
+								
+
+				if "cislo_jednaci_index" in locals() and "střet" not in sub_dict.values():
+					sub_dict["cislo_jednaci"] = pdf_text[cislo_jednaci_index+1][10::]
+
 
 				if CEZ["platnost_vyjadreni"] in text:
 					text_index = text.find(CEZ["platnost_vyjadreni"])
 					string_len = len(CEZ["platnost_vyjadreni"])
 					date_len = len("XX.YY.ZZZZ")
 					platnost_vyjadreni = text[text_index+string_len:string_len+date_len]
-					info_CEZ["platnost_vyjadreni"] = platnost_vyjadreni
+					sub_dict["platnost_vyjadreni"] = platnost_vyjadreni
+
+			if "stret" not in sub_dict:
+					sub_dict["stret"] = 'nechází'
+
+			info_CEZ[f"{key}"] = sub_dict
 
 			return info_CEZ
 
 
 
-		dict_file= self.find_file('ČEZ Distribuce','Sdělení')
+		dict_file= self.find_file('ČEZ','Sdělení')
 
 		
 		#loop pdf souboru z listu
-		for pdf_file in dict_file.values():
+		for key,pdf_file in dict_file.items():
 			pdf_text = self.PDF_reader(pdf_file)
-
+			# print(key)
 			 #ziskani info z pdf
+
+
+			info_CEZ =sub_CEZ(key,pdf_text)
 			
 
 		return info_CEZ

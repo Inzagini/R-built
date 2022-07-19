@@ -46,6 +46,28 @@
         "Matyáš Starý": "730 874 208",
         "Karolína Dittrichová": "730 874 211"
     },
+    "Titulni_strany" :{
+        "Nazev_stavby" : "C4",
+        "Cislo_stavby" : "C5",
+        "Projektant" : "C6",
+        "Tel_cislo_projektant" : "C7",
+        "datum" : "C8",
+        "Priprava" : "C9",
+        "Tel_cislo_pripravar" : "C10",
+        "interni_cislo" : "C11",
+        "SoBs_k_u" : "B3",
+
+
+        "zadani_list" : "ZAD",
+        "stitky" : "ŠTÍTKY",
+        "Doklad_1_titul" : "H - Dokl 1",
+        "Doklad_1_obsah" : "H1",
+        "Doklad_2_titul" : "H - Dokl 2",
+        "Doklad_2_obsah" : "H2",
+        "SoBSVB_Titul" : "I - SoBSVB",
+        "SoBSVB_obsah" : "I",
+        "SoBSVB_tabulka" : "SoBS tabulka"
+    },
     "jmeno_projektanta": {
         "Fisher": "Paul Peter Fisher",
         "Stará": "Kateřina Stará",

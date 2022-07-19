@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import os
 import Function as fn
+import Excel_func as xlfn
 
 
 ########################################## GUI funkce #############################################
@@ -14,7 +15,7 @@ def btn_search():
 	info = projekt.hledani_info_mesta()	#return informace_o_projektu (dict)
 		
 	canvas.delete('info','mesto_info')	# delete previous text
-	print(info)
+	# print(info)
 	
 	if 'k.u.' not in info.keys(): #pokud nenajde k.u.
 		messagebox.showerror(title='Error', message="k.u. nenalezeno")
@@ -110,10 +111,16 @@ def btn_thunder():
 
 		if stitky.get() == 1:
 			print("Stitky: On")
-			doc = fn.doc_manipulation(info)
-			doc.stitky()
+			excel = xlfn.excel_manipulation(info)
+			excel.stitky_pdf()
 		else:
 			print("Stitky: Off")
+
+		if doklad1_obsah.get() == 1:
+			print("Doklad1_obsah: On")
+			
+		else:
+			print("Doklad1_obsah: Off")
 
 		
 	else:
@@ -289,7 +296,18 @@ c_pruvodni.place(
     width = 13,
     height = 13,
 	)
-
+doklad1_obsah = IntVar()
+c_doklad1_obsah = Checkbutton(
+	window,
+	variable = doklad1_obsah,
+	onvalue = 1,
+	offvalue = 0,
+	)
+c_doklad1_obsah.place(
+	x = 105, y = 412,
+    width = 13,
+    height = 13,
+	)
 #######################################################
 window.resizable(False, False)
 window.mainloop()

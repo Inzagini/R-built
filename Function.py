@@ -21,7 +21,7 @@ def test():
 	
 	# doc = doc_manipulation(info)
 	# a = doc.pruvodni_zprava()
-	
+
 
 	
 
@@ -311,70 +311,9 @@ class doc_manipulation:
 				
 		return	1
 
-	def stitky(self):
-		user_name = self.user_name
-		project_file_directory = self.project_dict["project_file_directory"]
+	
 
-		pruvodni_zprava_directory = rf'{project_file_directory}\dokumentace na SÚ\textová část'
-		cwd = os.getcwd()
-		stitky_vzor = rf'{cwd}\Dokumenty\ŠTÍTKY.xlsx'
 		
-		
-		files = glob.glob(rf'{pruvodni_zprava_directory}\*.docx')
-		
-		for file_name in files:
-			# print (file_name)
-			if 'A_Průvodní' or 'Technicka' in file_name:
-				pruvodni_zprava_directory = file_name
-				# print ("Hotovo: ", pruvodni_zprava_directory)
-			else :
-				print ("Pruvodni zprava nenalezena")
-				return None
-
-		with open(pruvodni_zprava_directory,'rb') as f:
-				document = Document(f)
-
-		for index,paragraph in enumerate(document.paragraphs):
-			if 'Datum vydání' in paragraph.text:
-				datum_vydani = paragraph.text.replace("Datum vydání", "").replace(":", "").lstrip()
-				self.project_dict.setdefault("datum_vydani", datum_vydani)
-
-		wb = openpyxl.load_workbook(stitky_vzor) #load seznam projectu file
-		ws = wb.sheetnames
-
-		#find the rigth sheet and set it as active
-		for index,sheet in enumerate(ws): 
-			if f"R-built s.r.o." == sheet:
-				company = 'R-built'
-				wb.active = index
-				ws= wb.active
-		
-		# cells v exccel
-		ws[str(self.setting["stitky"]["jmeno_projektanta"])] = self.project_dict["jmeno_projektanta"]
-		ws[str(self.setting["stitky"]["nazev_projektu"])] = self.project_dict["nazev_projektu"]
-		ws[str(self.setting["stitky"]["interni_kod"])] = f'{self.project_dict["cislo_projektu"]}/{self.project_dict["rok_projektu"]}'
-		ws[str(self.setting["stitky"]["datum_vydani"])] = self.project_dict["datum_vydani"]
-		ws[str(self.setting["stitky"]["kod_projektu"])] = self.project_dict["kod_projektu"]
-
-		#Output directory
-		out_excel_file = rf'C:\Users\{user_name}\Desktop\ŠTÍTKY.xlsx'	
-		wb.save(filename=out_excel_file)
-		wb.close()
-
-
-		o = client.Dispatch("Excel.Application")
-		o.Visible = False
-
-		sheets = o.Workbooks.Open(out_excel_file)
-		work_sheets = sheets.Worksheets[0]
-		work_sheets.ExportAsFixedFormat(0, rf'C:\Users\{user_name}\Desktop\ŠTÍTKY.pdf')
-		sheets.Close(True)
-		try:
-			os.remove(f'{out_excel_file}')
-		except:
-			pass
-
-		return 'Hotovo'
 
 
 class zadani:
@@ -397,7 +336,7 @@ class zadani:
 
 		project_directory = rf'C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\{self.setting["rok_nazvy"][f"{projekt_rok}"]}'
 
-		for index, filename in enumerate(os.listdir(project_directory)):
+		for filename in os.listdir(project_directory):
 
 			try:
 				if int(filename[0:3]) == projekt_cislo:	
@@ -601,48 +540,33 @@ def search_k_u_ID_2json():
 	# 		print ("k.u. Nenalezeno")
 	# 		return None
 
-def rename_covers ():
-	wb = openpyxl.load_workbook('test file.xlsx')
-	sheet_names = wb.sheetnamesa
-	
-	sheet_num = [0,2,4,5,6]
-
-	for x in sheet_num:
-		sheet_name=sheet_names[x]
-		wb.active = wb[sheet_name]
-		sheet = wb.active
-		sheet['A31'] = jmeno_projektu
-		sheet['A35'] = cislo_projektu
-
-	wb.save(filename=f"{jmeno_projektu}.xlsx")
-	wb.close()
-	print("Done")
-
-def pdf_cover_content():
-	o = client.Dispatch("Excel.Application")
-	o.Visible = False
-	wb_path = rf'C:\Users\David\Desktop\New Folder\py test\test file.xlsx'
-
-	wb = o.Workbooks.Open(wb_path)
 
 
-	#say you want to print these sheets
-	ws_index_list_cover_pages = [1] 
+# def pdf_cover_content():
+# 	o = client.Dispatch("Excel.Application")
+# 	o.Visible = False
+# 	wb_path = rf'C:\Users\David\Desktop\New Folder\py test\test file.xlsx'
+
+# 	wb = o.Workbooks.Open(wb_path)
+
+
+# 	#say you want to print these sheets
+# 	ws_index_list_cover_pages = [1] 
 	
 
 
 
-def pdf_cover_merger(a,index,name=None,b='BlankPDF.pdf',):
-	pdfs = [a, b]
+# def pdf_cover_merger(a,index,name=None,b='BlankPDF.pdf',):
+# 	pdfs = [a, b]
 
-	merger = PdfFileMerger()
+# 	merger = PdfFileMerger()
 
-	for pdf in pdfs:
-		merger.append(pdf)
+# 	for pdf in pdfs:
+# 		merger.append(pdf)
 
-	merger.write(f"{name}{index}.pdf")
-	merger.close()
-	os.remove(f'{a}')	
+# 	merger.write(f"{name}{index}.pdf")
+# 	merger.close()
+# 	os.remove(f'{a}')	
 
 plna_moc = {
 	"plna_moc_CEZ" : r'C:\Users\David\OneDrive - R-built s.r.o\Dokumenty\1_plné moci\PLNÁ MOC EV ČÍSLO PM - 031_2021.pdf',

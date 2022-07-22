@@ -30,11 +30,11 @@
         "23": "akce 2023"
     },
     "stitky": {
-        "jmeno_projektanta": "B2",
-        "nazev_projektu": "A6",
-        "interni_kod": "E5",
-        "datum_vydani": "E6",
-        "kod_projektu": "D8"
+        "Projektant": "B2",
+        "Nazev_stavby": "A6",
+        "interni_cislo": "E5",
+        "datum": "E6",
+        "Cislo_stavby": "D8"
     },
     "Tel_cislo": {
         "Paul Peter Fisher": "730 874 209",

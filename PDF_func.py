@@ -1,4 +1,4 @@
-import os, sys, glob, json, openpyxl
+import os, sys, glob, json, openpyxl, datetime
 from PyPDF2 import PdfMerger, PdfWriter,PdfReader
 from openpyxl import Workbook as wb
 import Function as fn
@@ -6,16 +6,16 @@ import Function as fn
 def test():
 
 
-	projekt_ID = '22/63'
+	projekt_ID = '22/95'
 	project = fn.projekt(projekt_ID)
 	info = project.search_project()
 	
 	
 	PDF = PDF_manipulation(info)
-	CEZ = PDF.CEZ()
-	print(CEZ)
+	GasNet = PDF.T_mobile()
+	print(GasNet)
 	
-	# file = PDF.find_file('ČEZ','Sdělení')
+	# file = PDF.find_file('GasNet','stanovisko')
 
 	# print(file)
 
@@ -25,13 +25,13 @@ def test():
 
 class PDF_manipulation:
 
-	def __init__(self,info_dict):
+	def __init__(self, info_dict):
 		self.project_dict = info_dict
-		self.project_file_directory = self.project_dict["project_file_directory"]
-		self.site_directory = rf'{self.project_file_directory}\dokumentace na SÚ\dokladová část\vyjádření-inženýrské sítě'
+		self.project_f_dir = self.project_dict["project_f_dir"]
+		self.site_directory = rf'{self.project_f_dir}\dokumentace na SÚ\dokladová část\vyjádření-inženýrské sítě'
 		
 	#hledani spravny PDF file ve slozce -> list file
-	def find_file(self,sit,pozadavek):
+	def find_file(self, sit, pozadavek):
 
 		dict_dir = {}
 
@@ -40,7 +40,6 @@ class PDF_manipulation:
 			if sit in dir_:
 				dict_dir.setdefault(f"{dir_}", self.site_directory + rf'\{dir_}')
 
-		# site_directory = self.site_directory + rf'\{sit}'
 		dict_file = {}
 		for sit in dict_dir.keys():
 
@@ -49,21 +48,22 @@ class PDF_manipulation:
 			if 'us' in os.listdir(site_directory):
 				site_directory = site_directory + r'\us'
 
-			
-			for filename in os.listdir(site_directory):
-				
-				if pozadavek in filename:
-					# print (filename)
+			os.chdir(site_directory)
+			for filename in glob.glob("*.pdf"):	
+				if pozadavek in filename or pozadavek == 'Neni':
 					dict_file.setdefault(f"{sit}", site_directory+rf'\{filename}')
-		# print(list_file)
+
+		
 		return dict_file
 
 	def PDF_reader(self,pdf_file_directory):
 		reader = PdfReader(pdf_file_directory)
 		page = reader.pages[0]
-		text = page.extractText()
+		
+		
+		text = page.extract_text()	
 		text_list = text.split("\n")
-
+		
 		return text_list
 
 	#sit
@@ -86,22 +86,22 @@ class PDF_manipulation:
 				# print('SUB:', text)
 				if CETIN["cislo_jednaci"] in text:
 					cislo_jednaci = text.split(" ")[2].lstrip()
-					info_CETIN["cislo_jednaci"] = cislo_jednaci
+					sub_dict["cislo_jednaci"] = cislo_jednaci
 					# print('Číslo jednací:', cislo_jednaci)	
 
 				if CETIN["duvod_vyjadreni"] in text:
 					text_index = text.find(CETIN["duvod_vyjadreni"])
 					duvod_vyjadreni = text[text_index+len(CETIN["duvod_vyjadreni"])+2::]
-					info_CETIN["duvod_vyjadreni"] = duvod_vyjadreni
+					sub_dict["duvod_vyjadreni"] = duvod_vyjadreni
 					# print('Důvod vyjádření:', duvod_vyjadreni)
 
 				if CETIN["platnost_vyjadreni"] in text:
 					text_index = text.find(CETIN["platnost_vyjadreni"])
 					f_index = text.find('(')
 					platnost_vyjadreni = text[text_index+len(CETIN["platnost_vyjadreni"]):f_index].replace(" ", "")
-					info_CETIN["platnost_vyjadreni"] = platnost_vyjadreni
+					sub_dict["platnost_vyjadreni"] = platnost_vyjadreni
 					# print('Platnost vyjádření:', platnost_vyjadreni)
-			return info_CETIN
+			return sub_dict
 		
 		#list pozadovany souboru
 		dict_file= self.find_file('CETIN','Vy')
@@ -110,7 +110,9 @@ class PDF_manipulation:
 		for key,pdf_file in dict_file.items():
 			pdf_text = self.PDF_reader(pdf_file)
 
+			sub_dict = {}
 			 #hleda jestli dojde ke stretu
+			
 			for text in pdf_text:
 				# print(index, text)
 
@@ -119,23 +121,27 @@ class PDF_manipulation:
 					print('Test Stret...')
 
 					#pokud nedojde ke stretu			
-					if stret_string[0] == 'Nedojde':	
-						info_CETIN = sub_CETIN()
-						info_CETIN.setdefault("stret", "Nejsou dotčeni")
-						return info_CETIN
+					if stret_string[0] == 'Nedojde':
+						print('Nedojde')	
+						sub_CETIN()
+						sub_dict.setdefault("stret", "Nejsou dotčeni")
+						
 
 
 					#pokud dojde ke stretu
 					if stret_string[0] == 'Dojde':
-						info_CETIN = sub_CETIN()
+						print('Dojde')
+						sub_CETIN()
 
-						if info_CETIN["duvod_vyjadreni"] == 'Informace o poloze sítě':
+						if sub_dict["duvod_vyjadreni"] == 'Informace o poloze sítě':
 							pass
-						if info_CETIN["duvod_vyjadreni"] == 'Územní souhlas':
-							info_CETIN.setdefault("stret", "Střet")
-							return info_CETIN
+						if sub_dict["duvod_vyjadreni"] == 'Územní souhlas':
+							sub_dict.setdefault("stret", "Střet")
+			
+			info_CETIN[f"{key}"] = sub_dict
+
+		return info_CETIN
 		
-		return
 
 
 	def CRA (self):
@@ -229,6 +235,170 @@ class PDF_manipulation:
 			
 
 		return info_CEZ
+
+	def GasNet (self):
+		GasNet = {
+		"cislo_jednaci" : "naše značka",
+		"duvod_vyjadreni" : "Účel stanoviska:",
+		"platnost_vyjadreni" : "datum",
+		"stret" : "nejsou umístěna"
+		}
+
+		info_GasNet = {}
+
+		dict_file= self.find_file('GasNet','stanovisko')
+
+		
+		#loop pdf souboru z listu
+		for key,pdf_file in dict_file.items():
+			pdf_text = self.PDF_reader(pdf_file)
+			# print(key)
+			 #ziskani info z pdf
+			sub_dict = {}
+			for index, text in enumerate(pdf_text):
+				# print(index, text)
+
+				if GasNet["stret"] in text:
+					# print("Nachazi")
+					sub_dict["stret"] = "nenachází"
+				
+				if GasNet["cislo_jednaci"] in text:
+					sub_dict["cislo_jednaci"] = pdf_text[index+1]
+
+				if GasNet["platnost_vyjadreni"] in text:
+					datum = pdf_text[index+1][:10]
+					datum_ = [n for n in map(int,datum.split("."))]
+					datum_novy = f"{datum_[0]}.{datum_[1]}.{datum_[2]+2}"
+					
+					sub_dict["platnost_vyjadreni"] = datum_novy
+					
+		# info_GasNet = 
+		info_GasNet[f"{key}"] = sub_dict
+
+		return info_GasNet
+
+
+	def scvk (self):
+		scvk = {
+		"cislo_jednaci" : "Naše značka",
+		"duvod_vyjadreni" : "Existence zařízení ve správě SČVK",
+		"platnost_vyjadreni" : "Datová schránka",
+		"stret" : "nenachází"
+		}
+
+		info_scvk = {}
+
+		dict_file= self.find_file('SčVK','Neni')
+		
+		#loop pdf souboru z listu
+		for key,pdf_file in dict_file.items():
+
+			#pokud je uzemni souhlas (protoze to je obrazek)
+			if 'us' in pdf_file:
+				return None
+
+			pdf_text = self.PDF_reader(pdf_file)
+			
+			if len(pdf_text) <= 1:
+				
+				return 'prazdny'
+
+			# print(key)
+			#ziskani info z pdf
+			sub_dict = {}
+			for index, text in enumerate(pdf_text):
+				# print(index, text)
+
+				if scvk["duvod_vyjadreni"] in text:
+					duvod_vyjadreni = "Existence zařízení"
+					sub_dict["duvod_vyjadreni"] = duvod_vyjadreni
+
+				if scvk["stret"] in text:
+					sub_dict["stret"] = "nenachází"
+
+				if scvk["cislo_jednaci"] in text:
+					cislo_jednaci = text[:text.find(scvk["cislo_jednaci"])]
+					sub_dict["cislo_jednaci"] = cislo_jednaci
+					
+				
+				if scvk["platnost_vyjadreni"] in text:
+					platnost_vyjadreni = text[:text.find(scvk["platnost_vyjadreni"])]
+					sub_dict["platnost_vyjadreni"] = platnost_vyjadreni
+
+
+			#pokud to neni existence a je stret
+			if sub_dict["duvod_vyjadreni"] and sub_dict["stret"] not in sub_dict.values():
+				return None
+
+		info_scvk[f"{key}"] = sub_dict
+
+		return info_scvk
+
+	def T_mobile (self):
+		Tmobile = {
+		"cislo_jednaci" : [("Naše zna",3),("Číslo jednací",2)],
+		"duvod_vyjadreni" : "Účel stanoviska:",
+		"platnost_vyjadreni" : "V Praze dne:",
+		"stret" : "souhlas s realizací stavby"
+		}
+
+		info_Tmobile = {}
+
+		dict_file= self.find_file('T-mobile','Neni')
+
+		
+		#loop pdf souboru z listu
+		for key,pdf_file in dict_file.items():
+			pdf_text = self.PDF_reader(pdf_file)
+			# print(key)
+			 #ziskani info z pdf
+			sub_dict = {}
+			for index, text in enumerate(pdf_text):
+				# print(index, text)
+
+				if Tmobile["platnost_vyjadreni"] in text:
+					datum = pdf_text[index+1]
+					datum_ = [n for n in map(int,datum.split("."))]
+					platnost_vyjadreni = f"{datum_[0]}.{datum_[1]}.{datum_[2]+1}"
+					sub_dict["platnost_vyjadreni"] = platnost_vyjadreni
+					
+				if Tmobile["stret"] in text:
+					sub_dict["stret"] = 'souhlasí'
+
+				
+				cislo_jednaci = [sub_dict.setdefault("cislo_jednaci",  pdf_text[index+off_set]) for n, off_set in Tmobile["cislo_jednaci"] if n in text if len(pdf_text[index+off_set])>0 ]
+				
+
+		if "stret" not in sub_dict:
+			sub_dict["stret"] = 'Kolize'
+		
+		info_Tmobile[f"{key}"] = sub_dict
+
+		return info_Tmobile
+
+
+	#zatim nejde
+	# def Vodafone (self):
+	# 	Vodafone = {
+	# 	"cislo_jednaci" : "Naše zn",
+	# 	"duvod_vyjadreni" : "Účel stanoviska:",
+	# 	"platnost_vyjadreni" : "V Praze dne:",
+	# 	"stret" : "souhlasí s realizací projektu"
+	# 	}
+
+	# 	info_Vodafone = {}
+
+	# 	dict_file= self.find_file('Vodafone','Vyjad')
+
+	# 	for key,pdf_file in dict_file.items():
+	# 		pdf_text = self.PDF_reader(pdf_file)
+	# 	# 	# print(key)
+	# 	# 	 #ziskani info z pdf
+	# 	# 	sub_dict = {}
+	# 	# 	for index, text in enumerate(pdf_text):
+	# 	# 		print(index, text)
+
+	# 	return
 
 if __name__ == '__main__':
 	test()

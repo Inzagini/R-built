@@ -13,16 +13,16 @@ def test():
 
 	projekt_ID = '21/139'
 	project = projekt(projekt_ID)
-	info = project.hledani_info_mesta()
+	info = project.search_project()
 	
-	ZAD = zadani(info)
-	zad_info = ZAD.info_zadani()
+	# ZAD = zadani(info)
+	# zad_info = ZAD.info_zadani()
 	# info.update(zad_info)
-	print(zad_info)
+	print(info)
 	# doc = doc_manipulation(info)
 	# a = doc.pruvodni_zprava()
 
-
+	
 	
 
 	return
@@ -33,6 +33,9 @@ class projekt:
 		with open("setting.json","r",encoding = 'utf-8') as f:
 			file = f.read()
 			self.setting = json.loads(file)
+
+	
+		
 
 	###################### Hledani nazvu search_project() ############################	
 	def search_project(self):
@@ -48,15 +51,29 @@ class projekt:
 
 		user_name = os.getlogin() #get user name
 		
-		#File directories
-		project_directory = self.setting["projekt"]["project_directory"].replace("{user_name}", user_name)
+		file = os.getcwd()
+		above1 = os.path.dirname(file)
+		above2 = os.path.dirname(above1)
+
+		
+		#File directories	
+		 
+		if 'dokumenty' in above2 or 'Dokumenty' in above2 and user_name in above2 and 'R-built' in above2:
+			project_directory = above2
+			
+		else:
+			project_directory = self.setting["projekt"]["project_directory"].replace("{user_name}", user_name)
+			cloud_path = False
+
+			
+		
 		seznam_projektu_excel = project_directory + self.setting["projekt"]["seznam_projektu_excel"]
 		Titulni_strany_file = project_directory + self.setting["projekt"]["Titulni_strany_file"]
 
 		project_directory = project_directory + rf'\{self.setting["rok_nazvy"][f"{projekt_rok}"]}'
-		# seznam_projektu_excel = rf"C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\akce 2021\Seznam_projektů_2019-21_SLOUČENÝ_FIP_2021_07_21.xlsx"
-		# Titulni_strany_file = rf"C:\Users\{user_name}\OneDrive - R-built s.r.o\Dokumenty\TITULNÍ STRANY\R-built s.r.o"
 		
+		if not os.path.exists(project_directory):
+			return 'Directory does not exists'
 		
 
 		#get name project in list
@@ -74,9 +91,9 @@ class projekt:
 					#rok projektu
 					informace_o_projektu["rok_projektu"] = self.setting["rok_nazvy"][f"{projekt_rok}"].split()[1]
 
-					project_file_directory = project_directory + rf'\{filename}'
+					project_f_dir = project_directory + rf'\{filename}'
 
-					informace_o_projektu["project_file_directory"] = project_file_directory
+					informace_o_projektu["project_f_dir"] = project_f_dir
 
 			except: #skip errors in name  
 				pass
@@ -141,10 +158,7 @@ class projekt:
 		return self.informace_o_projektu
 	########################################################
 
-
-	################## Hledani info mesta z ceske katastralni urad ##############################
-	def hledani_info_mesta(self):
-		informace_o_projektu = self.search_project()
+	def get_k_u_ID(self,informace_o_projektu):
 		informace_jmena = informace_o_projektu.get("nazev_projektu")	#parsel nazev mesta
 		informace_jmena = informace_jmena.replace(" - ","-")	#odstraneni mezery
 		informace_jmena = re.split('[-_,]',informace_jmena)		#split 
@@ -166,19 +180,41 @@ class projekt:
 
 		try:	
 			ID_k_u = file[f'{nazev_mesta}']
+			return ID_k_u, nazev_mesta
 		except:
-			print ("Město Nenalezen")
-			return informace_o_projektu
+			print ("katastrální území nenalezen")
+			return None
+
+	def hledani_info_mesta(self):
+		informace_o_projektu = self.search_project()
+
+		if informace_o_projektu =='Directory does not exists':
+			return 'Directory does not exists'
+
+		ID_k_u = self.get_k_u_ID(informace_o_projektu)
+
+		info_webscrappe = self.webscrappe(ID_k_u, informace_o_projektu)
+
+		if info_webscrappe == None or ID_k_u[1] not in info_webscrappe['ku']:
+			info_webscrappe = self.webscrappe_backup(ID_k_u)
+
+		informace_o_projektu.update(info_webscrappe)
+
+		return informace_o_projektu
+
+
+	################## Hledani info mesta z ceske katastralni urad ##############################
+	def webscrappe(self, ID_k_u, informace_o_projektu):
 
 		# webscrapping
-		URL = self.setting["projekt"]["URL1"].replace("{ID_k_u}", str(ID_k_u))	#web link bez ID k.u. 
+		URL = self.setting["projekt"]["URL1"].replace("{ID_k_u}", str(ID_k_u[0]))	#web link bez ID k.u. 
 
 		page = requests.get(URL)										#web scrape informaci
 		soup = BeautifulSoup(page.content, "html.parser")
 		results = soup.find_all("td", limit = 14)
 
 		dict_o_mestu = {}
-		dict_o_mestu.setdefault('k.u.', nazev_mesta)
+		dict_o_mestu.setdefault('k.u.', ID_k_u[1])
 
 		for index, element in enumerate(results):						#loop element pro content
 			if str(element.contents[0]) in ('Kraj', 'Okres', 'Obec'):
@@ -199,56 +235,33 @@ class projekt:
 		return informace_o_projektu
 
 	######################## Hledani info mesta z jineho zdroje ###################
-	# def hledani_info_mesta(self):
-	# 	informace_o_projektu = self.search_project()
-	# 	informace_jmena = informace_o_projektu.get("nazev_projektu")	#parsel nazev mesta
-	# 	informace_jmena = informace_jmena.replace(" - ","-")	#odstraneni mezery
-	# 	informace_jmena = re.split('[-_,]',informace_jmena)		#split 
-	# 	# print(informace_jmena, informace_jmena[1])
+	def webscrappe_backup(self, ID_k_u, informace_o_projektu):
 
-	# 	if len(informace_jmena[0]) > 2:
-	# 		informace_jmena.insert(0," ")
-	# 		nazev_mesta = informace_jmena[1]
-	# 	else:
-	# 		nazev_mesta = informace_jmena[1]
-
-	# 	if "Ústí n.L" in nazev_mesta:
-	# 		nazev_mesta = nazev_mesta.replace("Ústí n.L.","Ústí nad Labem")
-
-	# 	with open('k_u_ID.json','r') as f:
-	# 		file = json.load(f)
-
-	# 	try:	
-	# 		ID_k_u = file[f'{nazev_mesta}']
-	# 	except:
-	# 		print ("Město Nenalezen")
-	# 		return None
-
-	# 	URL = self.setting["projekt"]["URL2"].replace("{ID_k_u}", str(ID_k_u))
+		URL = self.setting["projekt"]["URL2"].replace("{ID_k_u}", str(ID_k_u))
 	
-	# 	page = requests.get(URL)										#web scrape informaci
-	# 	soup = BeautifulSoup(page.content, "html.parser")
-	# 	results = soup.find("table", class_ = 'pd padall rowcl l colwidth')
+		page = requests.get(URL)										#web scrape informaci
+		soup = BeautifulSoup(page.content, "html.parser")
+		results = soup.find("table", class_ = 'pd padall rowcl l colwidth')
 
-	# 	dict_o_mestu ={}
-	# 	dict_o_mestu.setdefault('k.u.', nazev_mesta)
-	# 	for tr in results.find_all("tr",limit = 9):
-	# 		try:										#pokud se najde key a dontent v tr 
-	# 			key = tr.find("td").text				#tak vlozeni do dict
-	# 			content = tr.find('a').contents[0].text		
-	# 			dict_o_mestu.setdefault(key, content)
-	# 		except:
-	# 			pass
+		dict_o_mestu ={}
+		dict_o_mestu.setdefault('k.u.', nazev_mesta)
+		for tr in results.find_all("tr",limit = 9):
+			try:										#pokud se najde key a dontent v tr 
+				key = tr.find("td").text				#tak vlozeni do dict
+				content = tr.find('a').contents[0].text		
+				dict_o_mestu.setdefault(key, content)
+			except:
+				pass
 
-	# 	if dict_o_mestu['Kraj'] not in ['Ústecký', 'Středočeský']:
-	# 		print ("Nenalezen katastrální uzemí")
-	# 		return informace_o_projektu
-	# 	else:
-	# 		informace_o_projektu.update(dict_o_mestu)
-	# 		informace_o_projektu['misto_stavby'] = f"Obec {dict_o_mestu['Obec']}, okres {dict_o_mestu['Okres']}, {dict_o_mestu['Kraj']} kraj"
-	# 		informace_o_projektu['ku'] = f"k.ú. {dict_o_mestu['k.u.']}, okr. {dict_o_mestu['Okres']}"
+		if dict_o_mestu['Kraj'] not in ['Ústecký', 'Středočeský']:
+			print ("Nenalezen katastrální uzemí")
+			return informace_o_projektu
+		else:
+			informace_o_projektu.update(dict_o_mestu)
+			informace_o_projektu['misto_stavby'] = f"Obec {dict_o_mestu['Obec']}, okres {dict_o_mestu['Okres']}, {dict_o_mestu['Kraj']} kraj"
+			informace_o_projektu['ku'] = f"k.ú. {dict_o_mestu['k.u.']}, okr. {dict_o_mestu['Okres']}"
 				
-	# 	return informace_o_projektu
+		return informace_o_projektu
 		
 #############################################################################
 
@@ -339,7 +352,7 @@ class doc_manipulation:
 class zadani:
 	def __init__(self, project_info):
 		# self.cislo_projektu = cislo_projektu
-		self.project_file_directory = project_info["project_file_directory"]
+		self.project_f_dir = project_info["project_f_dir"]
 		with open("setting.json","r",encoding = 'utf-8') as f:
 			file = f.read()
 			self.setting = json.loads(file)
@@ -347,31 +360,31 @@ class zadani:
 	######################## Hledani zadani (file path)######################################
 	def hledani_zadani(self):	
 
-		project_file_directory = self.project_file_directory
+		project_f_dir = self.project_f_dir
 
 		try:
-			for file in os.listdir(project_file_directory):
+			for file in os.listdir(project_f_dir):
 				# print (file)
 				if 'ZAD' in file:
-					zadani = project_file_directory + rf'\{file}'
+					zadani = project_f_dir + rf'\{file}'
 					self.zadani = zadani
 					# print('Zadani:' + zadani)
 					return self.zadani
 				if 'podklady' == file:
-					project_file_directory = project_file_directory +r'\podklady'
+					project_f_dir = project_f_dir +r'\podklady'
 					podklady = True
 					# print('podklady True')
 			
-			if os.listdir(project_file_directory) != None and 'podklady' not in locals():
-				project_file_directory = project_file_directory +rf'\{file}'
-				for file in os.listdir(project_file_directory):
+			if os.listdir(project_f_dir) != None and 'podklady' not in locals():
+				project_f_dir = project_f_dir +rf'\{file}'
+				for file in os.listdir(project_f_dir):
 					if 'ZAD' in file:
-						zadani = project_file_directory + rf'\{file}'
+						zadani = project_f_dir + rf'\{file}'
 						self.zadani = zadani
 						# print('Zadani:' + zadani)
 						return self.zadani
 					if 'podklady' in file:
-						project_file_directory = project_file_directory +r'\podklady'
+						project_f_dir = project_f_dir +r'\podklady'
 						podklady = True
 						# print('podklady True')
 
@@ -380,31 +393,31 @@ class zadani:
 			return None
 
 		if 'podklady' in locals() and True:
-			for file in os.listdir(project_file_directory):
+			for file in os.listdir(project_f_dir):
 				if 'ZAD' in file:
-					zadani = project_file_directory + rf'\{file}'
+					zadani = project_f_dir + rf'\{file}'
 					self.zadani = zadani
 					return self.zadani
 					# print('Zadani:' + zadani)
 				elif 'ZN' == file:
-					project_file_directory = project_file_directory +r'\ZN'
+					project_f_dir = project_f_dir +r'\ZN'
 					ZN = True
 					# print('ZN True')
 		
 		if 'ZN' in locals() and True:
-		# print(project_file_directory)
-			for file in os.listdir(project_file_directory):
+		# print(project_f_dir)
+			for file in os.listdir(project_f_dir):
 				# print(file)
 				if 'ZAD' in file:
-					zadani = project_file_directory + rf'\{file}'
+					zadani = project_f_dir + rf'\{file}'
 					self.zadani = zadani
 					return self.zadani
 					print('Zadani:' + zadani)
 
-			if os.listdir(project_file_directory) != None:
+			if os.listdir(project_f_dir) != None:
 				# print ('Not none')
-				for file in os.listdir(project_file_directory):	
-					find_file_directory = project_file_directory +rf'\{file}'
+				for file in os.listdir(project_f_dir):	
+					find_file_directory = project_f_dir +rf'\{file}'
 					
 					try:
 						for f in os.listdir(find_file_directory):
